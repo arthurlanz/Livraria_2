@@ -1,3 +1,5 @@
+from django.conf import settings
+from django.conf.urls.static import static
 from django.contrib import admin
 from django.urls import include, path
 from drf_spectacular.views import (
@@ -20,6 +22,7 @@ from core.views import (
     UserRegistrationView,
     UserViewSet,
 )
+from uploader.router import router as uploader_router
 
 router = DefaultRouter()
 
@@ -31,24 +34,26 @@ router.register(r'livros', LivroViewSet, basename='livros')
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+
+    # Upload de arquivos
+    path('api/media/', include(uploader_router.urls)),
+
     # OpenAPI 3
     path('api/schema/', SpectacularAPIView.as_view(), name='schema'),
-    path(
-        'api/doc/',
-        SpectacularSwaggerView.as_view(url_name='schema'),
-        name='swagger-ui',
-    ),
-    path(
-        'api/redoc/',
-        SpectacularRedocView.as_view(url_name='schema'),
-        name='redoc',
-    ),
+    path('api/doc/', SpectacularSwaggerView.as_view(url_name='schema'), name='swagger-ui'),
+    path('api/redoc/', SpectacularRedocView.as_view(url_name='schema'), name='redoc'),
+
     # Autenticação JWT
     path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
     path('api/token/verify/', TokenVerifyView.as_view(), name='token_verify'),
+
     # Registro de usuários
     path('api/registro/', UserRegistrationView.as_view(), name='user_registration'),
-    # API
+
+    # API principal
     path('api/', include(router.urls)),
 ]
+
+# Servir arquivos de mídia em desenvolvimento
+urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
