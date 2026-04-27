@@ -2,16 +2,24 @@
 Django admin customization.
 """
 
-from django.contrib import admin
+from django.contrib.admin import ModelAdmin, register
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from django.utils.translation import gettext_lazy as _
 
-from core import models
+from core.models import Autor, User
 
 
+@register(Autor)
+class AutorAdmin(ModelAdmin):
+    list_display = ('nome', 'email')
+    search_fields = ('nome', 'email')
+    list_filter = ('nome',)
+    ordering = ('nome', 'email')
+    list_per_page = 10
+
+
+@register(User)
 class UserAdmin(BaseUserAdmin):
-    """Define the admin pages for users."""
-
     ordering = ['id']
     list_display = ['email', 'name']
     fieldsets = (
@@ -51,8 +59,8 @@ class UserAdmin(BaseUserAdmin):
     )
 
 
-admin.site.register(models.User, UserAdmin)
-admin.site.register(models.Autor)
-admin.site.register(models.Categoria)
-admin.site.register(models.Editora)
-admin.site.register(models.Livro)
+# admin.site.register(models.User, UserAdmin)
+# admin.site.register(models.Autor)
+# admin.site.register(models.Categoria)
+# admin.site.register(models.Editora)
+# admin.site.register(models.Livro)
